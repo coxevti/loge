@@ -8,14 +8,20 @@ interface Request {
 
 class CreateCategoryService {
   public async execute({ name }: Request): Promise<Category> {
+    const nameSanitize = name.trim().toLowerCase();
+    if (nameSanitize === '') {
+      throw new AppError('O campo nome é obrigatório');
+    }
     const categoriesRepository = getRepository(Category);
     const checkCategoryExists = await categoriesRepository.findOne({
-      where: { name },
+      where: { name: nameSanitize },
     });
     if (checkCategoryExists) {
       throw new AppError('Já existe uma categoria cadastrada com esse nome');
     }
-    const category = categoriesRepository.create({ name });
+    const category = categoriesRepository.create({
+      name: nameSanitize,
+    });
     await categoriesRepository.save(category);
     return category;
   }

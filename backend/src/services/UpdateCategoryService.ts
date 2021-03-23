@@ -10,18 +10,22 @@ interface Request {
 
 class UpdateCategoryService {
   public async execute({ id, name, status }: Request): Promise<Category> {
+    const nameSanitize = name.trim().toLowerCase();
+    if (nameSanitize === '') {
+      throw new AppError('O campo nome é obrigatório');
+    }
     const categoriesRepository = getRepository(Category);
     const category = await categoriesRepository.findOne(id);
     if (!category) {
       throw new AppError('Categoria não encontrada!');
     }
     const checkCategoryNameExist = await categoriesRepository.findOne({
-      where: { name },
+      where: { name: nameSanitize },
     });
     if (checkCategoryNameExist && checkCategoryNameExist.id !== id) {
       throw new AppError('Já existe uma categoria cadastrada com esse nome');
     }
-    category.name = name;
+    category.name = nameSanitize;
     category.status = status;
     await categoriesRepository.save(category);
     return category;

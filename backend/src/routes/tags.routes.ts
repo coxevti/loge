@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm';
 import Tag from '../entities/Tag';
 import ensureAuthenticated from '../middlewares/ensureAuthenticated';
 import CreateTagService from '../services/CreateTagService';
+import DeleteTagService from '../services/DeleteTagService';
 import UpdateTagService from '../services/UpdateTagService';
 
 const tagsRouter = Router();
@@ -30,6 +31,13 @@ tagsRouter.put('/:id', async (req, res) => {
   const updateTagService = new UpdateTagService();
   const tag = await updateTagService.execute({ id, name, status });
   return res.json({ tag });
+});
+
+tagsRouter.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  const deleteTagService = new DeleteTagService();
+  await deleteTagService.execute({ id });
+  return res.status(204).json(req.params.id);
 });
 
 export default tagsRouter;
