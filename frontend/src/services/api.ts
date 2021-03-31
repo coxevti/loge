@@ -24,6 +24,12 @@ api.interceptors.response.use(
     return response;
   },
   (err) => {
+    const token = localStorage.getItem('@Loge:token');
+    if (err.response.status === 401 && token) {
+      localStorage.removeItem('@Loge:token');
+      localStorage.removeItem('@Loge:user');
+      document.location.href = '/?expired_session';
+    }
     return Promise.reject(err);
   },
 );

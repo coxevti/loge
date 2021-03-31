@@ -14,4 +14,5 @@ export const Container = styled.button<ButtonProps>`
   padding: 12px 25px;
   display: flex;
   align-items: center;
+  justify-content: center;
 `;

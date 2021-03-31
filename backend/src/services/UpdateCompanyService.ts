@@ -34,6 +34,11 @@ class UpdateCompanyService {
     zip,
     status,
   }: Request): Promise<Company> {
+    const re = /(^(\d{14}|\d{11})$)/;
+    const isValidCnpjCpf = re.test(cnpjCpf);
+    if (!isValidCnpjCpf) {
+      throw new AppError('CNPJ/CPF Inválido');
+    }
     const companiesRepository = getRepository(Company);
     const company = await companiesRepository.findOne(id);
     if (!company) {

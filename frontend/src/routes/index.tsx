@@ -6,6 +6,8 @@ import Dashboard from 'pages/Dashboard';
 import User from 'pages/User';
 import Category from 'pages/Category';
 import Tag from 'pages/Tag';
+import Company from 'pages/Company';
+import Product from 'pages/Product';
 import Route from './Route';
 
 const Routes: React.FC = () => (
@@ -15,6 +17,8 @@ const Routes: React.FC = () => (
     <Route path="/users" component={User} isPrivate />
     <Route path="/categories" component={Category} isPrivate />
     <Route path="/tags" component={Tag} isPrivate />
+    <Route path="/company" component={Company} isPrivate />
+    <Route path="/products" component={Product} isPrivate />
   </Switch>
 );
 

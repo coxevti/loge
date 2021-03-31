@@ -4,14 +4,16 @@ import cogoToast from 'cogo-toast';
 import Button from 'components/Button';
 import Input from 'components/Input';
 import { useAuth } from 'context/AuthContext';
+import { useLocation } from 'react-router-dom';
 import {
   Background,
   Container,
   Content,
   AnimationContainer,
 } from 'pages/SignIn/styles';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Lock, Mail } from 'react-feather';
+
 import getValidationErrors from 'utils/getValidationErrors';
 import * as Yup from 'yup';
 import { ParamsFormData } from './ParamsFormData';
@@ -46,6 +48,17 @@ const SignIn: React.FC = () => {
     },
     [signIn],
   );
+
+  const { search } = useLocation();
+
+  useEffect(() => {
+    (() => {
+      const query = new URLSearchParams(search);
+      if (query.has('expired_session')) {
+        cogoToast.error('Sua sessão expirou, Faça login novamente');
+      }
+    })();
+  }, [search]);
 
   return (
     <Container>

@@ -8,6 +8,8 @@ import UpdateCompanyService from '../services/UpdateCompanyService';
 import storageMulter from '../configs/multer';
 import CompanyLogoService from '../services/CompanyLogoService';
 
+import companyValidation from '../validations/Company';
+
 const companiesRouter = Router();
 const upload = multer(storageMulter);
 
@@ -15,8 +17,12 @@ companiesRouter.use(ensureAuthenticated);
 
 companiesRouter.get('/', async (req, res) => {
   const companiesRepository = getRepository(Company);
-  const companies = await companiesRepository.find();
-  return res.json({ companies });
+  const company = await companiesRepository.findOne({
+    where: {
+      cnpjCpf: '21676301000100',
+    },
+  });
+  return res.json({ company: company || {} });
 });
 
 companiesRouter.post('/', async (req, res) => {
@@ -50,7 +56,7 @@ companiesRouter.post('/', async (req, res) => {
   return res.status(201).json({ company });
 });
 
-companiesRouter.put('/:id', async (req, res) => {
+companiesRouter.put('/:id', companyValidation.update, async (req, res) => {
   const { id } = req.params;
   const {
     cnpjCpf,

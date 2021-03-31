@@ -25,29 +25,42 @@ interface MinTableItem {
   id: PrimitiveType;
 }
 
-type TableHeaders<T extends MinTableItem> = Record<keyof T, string>;
+type TableHeaders = {
+  id: string;
+};
 
-type CustomRenderers<T extends MinTableItem> = Partial<Record<keyof T, (it: T) => React.ReactNode>>;
+type CustomRenderers<T extends MinTableItem> = Partial<
+  Record<keyof T, (it: T) => React.ReactNode>
+>;
 
 interface TableProps<T extends MinTableItem> {
   items: T[];
-  headers: TableHeaders<T>;
+  headers: TableHeaders;
+  headersHide?: string[];
   customRenderers?: CustomRenderers<T>;
 }
 
-export default function Table<T extends MinTableItem>({ items, headers, customRenderers }: TableProps<T>) {
-  function renderRow(item: T) {
+export default function Table<T extends MinTableItem>({
+  items,
+  headers,
+  headersHide = ['id'],
+  customRenderers,
+}: TableProps<T>): JSX.Element {
+  function renderRow(item: T): JSX.Element {
     return (
       <tr key={Math.random()}>
         {objectKeys(item).map((itemProperty, index) => {
-          if (itemProperty === 'id') return;
+          const tess = itemProperty as string;
+          if (headersHide?.includes(tess)) return;
           const customRenderer = customRenderers?.[itemProperty];
           if (customRenderer) {
             return <td key={index}>{customRenderer(item)}</td>;
           }
 
           return (
-            <td key={index}>{isPrimitive(item[itemProperty]) ? item[itemProperty] : ''}</td>
+            <td key={index}>
+              {isPrimitive(item[itemProperty]) ? item[itemProperty] : ''}
+            </td>
           );
         })}
       </tr>
@@ -58,9 +71,8 @@ export default function Table<T extends MinTableItem>({ items, headers, customRe
       <thead>
         <tr>
           {objectValues(headers).map((headerValue) => {
-            if (headerValue !== 'ID') {
-              return <th key={headerValue}>{headerValue}</th>;
-            }
+            if (headersHide?.includes(headerValue.toLowerCase())) return null;
+            return <th key={headerValue}>{headerValue}</th>;
           })}
         </tr>
       </thead>

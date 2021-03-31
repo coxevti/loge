@@ -4,6 +4,9 @@ import ensureAuthenticated from '../middlewares/ensureAuthenticated';
 import Product from '../entities/Product';
 import CreateProductService from '../services/CreateProductService';
 import UpdateProductService from '../services/UpdateProductService';
+import DeleteProductService from '../services/DeleteProductService';
+
+import productValidation from '../validations/Product';
 
 const productsRouter = Router();
 
@@ -14,10 +17,13 @@ productsRouter.get('/', async (req, res) => {
   const products = await productsRepository.find({
     relations: ['category'],
   });
-  return res.json({ products });
+  const unitOfMeasurement = await productsRepository.query(
+    'SELECT unnest(enum_range(NULL::products_unit_enum)) as unid',
+  );
+  return res.json({ products, unitOfMeasurement });
 });
 
-productsRouter.post('/', async (req, res) => {
+productsRouter.post('/', productValidation.store, async (req, res) => {
   const { categoryId, name, unit, price } = req.body;
   const createProductService = new CreateProductService();
   const product = await createProductService.execute({
@@ -29,7 +35,7 @@ productsRouter.post('/', async (req, res) => {
   return res.status(201).json({ product });
 });
 
-productsRouter.put('/:id', async (req, res) => {
+productsRouter.put('/:id', productValidation.update, async (req, res) => {
   const { id } = req.params;
   const { categoryId, name, unit, price, status } = req.body;
   const updateProductService = new UpdateProductService();
@@ -42,6 +48,13 @@ productsRouter.put('/:id', async (req, res) => {
     status,
   });
   return res.json({ product });
+});
+
+productsRouter.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  const deleteProductService = new DeleteProductService();
+  await deleteProductService.execute({ id });
+  return res.status(204).json(req.params.id);
 });
 
 export default productsRouter;
